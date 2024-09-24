@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        let totalBalance = 1000; // Set the initial balance here
+        let donationHistory = []; // Array to store donation history
+
+        function toggleSection(section) {
+            const donateSection = document.querySelector('.donate');
+            const historySection = document.querySelector('.history');
+            const donateButton = document.getElementById('donateButton');
+            const historyButton = document.getElementById('historyButton');
+
+            if (section === 'donate') {
+                donateSection.style.display = 'block';
+                historySection.style.display = 'none';
+                donateButton.classList.add('active');
+                historyButton.classList.remove('active');
+            } else {
+                donateSection.style.display = 'none';
+                historySection.style.display = 'block';
+                donateButton.classList.remove('active');
+                historyButton.classList.add('active');
+                displayHistory(); // Display history when showing the history section
+            }
+        }
+
+        window.onload = function() {
+            toggleSection('donate'); // Default to showing the donate section
+            updateBalanceDisplay(); // Update the balance display on load
+        }
+
+        // Function to validate donation amount
+        function validateDonation(event, card) {
+            event.preventDefault(); // Prevent form from submitting
+            const donationInput = document.getElementById(`donate-input-${card}`).value;
+            const cardTitle = document.getElementById(`card-title-${card}`).innerText; // Get card title
+
+            if (donationInput > 0) {
+                const donationAmount = parseFloat(donationInput);
+                if (donationAmount <= totalBalance) {
+                    updateBalances(donationAmount, card);
+                    recordDonation(donationAmount, cardTitle); // Record the donation
+                    showModal();
+                } else {
+                    alert("Insufficient balance.");
+                }
+            } else {
+                alert("Please enter a valid donation amount greater than 0.");
+            }
+        }
+
+        // Function to update the balances
+        function updateBalances(donationAmount, card) {
+            totalBalance -= donationAmount; // Subtract from total balance
+            document.querySelector('.balance p').textContent = `balance BDT ${totalBalance}`;
+
+            const cardBalance = document.getElementById(`card-balance-${card}`);
+            const currentCardBalance = parseFloat(cardBalance.textContent.replace('balance BDT ', ''));
+            cardBalance.textContent = `balance BDT ${currentCardBalance + donationAmount}`; // Update card balance
+        }
+
+        // Function to record the donation
+        function recordDonation(amount, title) {
+            const dateTime = new Date(); // Get the current date and time
+            const formattedDate = dateTime.toString(); // Format date and time
+            donationHistory.push(`${amount} Taka is donated for ${title} <br>Date: ${formattedDate}`); // Include date in the history
+        }
+
+        // Function to display the donation history
+        function displayHistory() {
+            const historyContainer = document.getElementById('historyList');
+            historyContainer.innerHTML = ''; // Clear previous history
+
+            if (donationHistory.length === 0) {
+                historyContainer.innerHTML = '<p>Your donation history will appear here.</p>';
+                return;
+            }
+
+            donationHistory.forEach(donation => {
+                const listItem = document.createElement('p');
+                listItem.innerHTML = donation; // Display donation history with date
+                historyContainer.appendChild(listItem);
+            });
+        }
+
+        // Function to display the modal
+        function showModal() {
+            const modal = document.getElementById('donationModal');
+            modal.style.display = "block";
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById('donationModal');
+            modal.style.display = "none";
+        }
+
+        // Function to update balance display in the navbar
+        function updateBalanceDisplay() {
+            document.querySelector('.balance p').textContent = `balance BDT ${totalBalance}`;
+        }
+
+    </script>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="blog.html">Blog</a>
+            <p><img src="assets/logo.png" alt="">Donate Bangladesh</p>
+            <div class="balance">
+                <p>balance BDT ${totalBalance}</p>
+            </div>
+        </nav>
+        <section class="page">
+            <button type="button" id="donateButton" onclick="toggleSection('donate')">Donate</button>
+            <button type="button" id="historyButton" onclick="toggleSection('history')">History</button>
+        </section>
+    </header>
+    <main>
+        <section class="donate">
+            <div class="donate-card">
+                <img src="assets/noakhali.png" alt="pic1">
+                <div class="content">
+                    <p class="bal" id="card-balance-1"><img src="assets/coin.png" alt="">balance BDT 0</p>
+                    <h3 id="card-title-1">Famine-2024 at Feni, Bangladesh</h3>
+                    <p>The recent floods in Noakhali have caused significant damage to homes and infrastructure. Your donation will help provide essential supplies and support to those affected by this disaster. Every contribution, big or small, makes a difference. Please join us in supporting the relief efforts and making a positive impact on the lives of those in need.</p>
+                    <form action="" onsubmit="validateDonation(event, 1)">
+                        <input type="number" id="donate-input-1" placeholder="Write Donation Amount">
+                        <br>
+                        <button type="submit">Donate</button>
+                    </form>
+                </div>
+            </div>
+            <!-- Repeat this structure for additional donate-cards, changing the card number accordingly -->
+        </section>
+        <section class="history" style="display: none;">
+            <div class="history-card">
+                <h3>Donation History:</h3>
+                <div id="historyList">
+                    <p>Your donation history will appear here.</p>
+                </div>
+            </div>
+        </section>
+
+        <div id="donationModal" class="modal">
+            <div class="modal-content">
+                <h2>Congrats!</h2>
+                <img src="assets/coin.png" alt="Coin">
+                <p>You Have Donated for Humankind</p>
+                <strong>Successfully</strong>
+                <button onclick="closeModal()">close confirmation</button>
+            </div>
+        </div>
+        
+    </main>
+    <footer>
+    </footer>
+</body>
+</html>
